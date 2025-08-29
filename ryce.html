@@ -213,50 +213,6 @@
         .corner-audio {
             display: none;
         }
-        .audio-controls-wrapper {
-            position: fixed;
-            left: 24px;
-            bottom: 24px;
-            z-index: 30;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .audio-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(24,24,27,0.95);
-            border-radius: 10px;
-            box-shadow: 0 2px 12px #000a;
-            padding: 8px 16px;
-            margin-top: 4px;
-            z-index: 31;
-            position: relative;
-        }
-        .audio-controls button {
-            background: #222;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s;
-            box-shadow: 0 1px 4px #0006;
-        }
-        .audio-controls button:hover {
-            background: #444;
-        }
-        .audio-controls input[type="range"] {
-            width: 80px;
-            accent-color: #fff;
-            background: transparent;
-        }
     </style>
 </head>
 <body>
@@ -284,10 +240,11 @@
                 <a href="https://open.spotify.com/user/olqqo0san52qeb8denz2tel02" class="social spotify" target="_blank" title="Spotify">
                     <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/spotify.svg" alt="Spotify"/>
                 </a>
+            </div>
         </div>
     </div>
     <div class="audio-controls-wrapper">
-        <audio id="custom-audio" class="corner-audio" src="https://files.catbox.moe/e6wt0v.mp3" autoplay loop></audio>
+        <audio id="custom-audio" class="corner-audio" src="https://files.catbox.moe/e6wt0v.mp3" autoplay loop muted></audio>
         <div class="audio-controls">
             <button id="play-pause" aria-label="Play/Pause">
                 <span id="play-icon" style="display:inline;">
@@ -308,9 +265,6 @@
             <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Volume" />
         </div>
     </div>
-        
-</body>
-</body>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const audio = document.getElementById('custom-audio');
@@ -323,6 +277,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const unmuteIcon = document.getElementById('unmute-icon');
 
     audio.volume = volumeSlider.value;
+
+ 
+    audio.muted = false;
+    audio.play().catch(() => {
+        console.log('Autoplay blocked, will unmute on first interaction');
+    });
+
+    document.addEventListener('click', function() {
+        if (audio.paused) {
+            audio.muted = false;
+            audio.play();
+        }
+    }, { once: true });
 
     playPause.addEventListener('click', function() {
         if (audio.paused) {
@@ -359,4 +326,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+</body>
 </html>
