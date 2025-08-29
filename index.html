@@ -1,162 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>richcat.lol</title>
 <style>
-  :root { --bg:#000; --fg:#fff; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  html, body {
-    height:100%;
-    background:var(--bg);
-    color:var(--fg);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    overflow:hidden;
-    -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none; /* no highlight */
-  }
+    body {
+        margin: 0;
+        padding: 0;
+        background: black;
+        color: white;
+        font-family: monospace;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+    }
 
-  .screen {
-    position:fixed; inset:0;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    transition:opacity .6s ease, visibility .6s ease;
-  }
-  .hidden { opacity:0; visibility:hidden; pointer-events:none; }
+    /* Landing Page */
+    #landing {
+        text-align: center;
+    }
 
-  /* Landing */
-  .landing img {
-    max-width:360px; width:60vw; margin-bottom:1.5rem; filter:grayscale(100%);
-  }
-  .brand { font-size:clamp(20px, 3vw, 28px); margin-bottom:1.4rem; letter-spacing:.02em; }
-  .enter {
-    background:transparent; color:var(--fg);
-    border:2px solid var(--fg); padding:.8rem 2rem; font-size:1.05rem; cursor:pointer;
-    transition:background .25s ease, color .25s ease; letter-spacing:.08em;
-  }
-  .enter:hover { background:var(--fg); color:var(--bg); }
+    #landing img {
+        width: 180px;
+        margin-bottom: 20px;
+        filter: grayscale(100%); /* Makes Pusheen black & white */
+    }
 
-  /* Terminal */
-  .terminal { padding:24px; display:flex; align-items:center; justify-content:center; }
-  .terminal.top { align-items:flex-start; } /* auto-switch when content is tall */
-  .term-wrap {
-    width:min(900px, 100%); margin:0 auto; max-height:calc(100vh - 48px);
-    overflow:auto; line-height:1.6; font-size:16px; white-space:pre-wrap; text-align:left;
-  }
-  .line { margin-bottom:4px; }
-  .cursor { display:inline-block; width:9px; height:1em; transform:translateY(3px); background:var(--fg); animation:blink 1s steps(1,end) infinite; margin-left:2px; }
-  @keyframes blink { 0%,50% {opacity:1} 51%,100% {opacity:0} }
+    #enterBtn {
+        background: transparent;
+        color: white;
+        border: 1px solid white;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-family: 'Courier New', monospace;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
 
-  a.cmd { color:var(--fg); text-decoration:none; border-bottom:1px dotted transparent; transition:background .2s ease, color .2s ease, border-color .2s ease; }
-  a.cmd:hover { background:var(--fg); color:var(--bg); border-color:var(--bg); padding:0 3px; }
+    #enterBtn:hover {
+        background: white;
+        color: black;
+    }
 
-  @media (max-width:600px){
-    .terminal{ padding:16px; }
-    .term-wrap{ font-size:15px; }
-  }
+    .footer-text {
+        margin-top: 20px;
+        font-size: 14px;
+        color: white;
+        text-shadow: 0 0 8px white;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.6; }
+        100% { opacity: 1; }
+    }
+
+    /* Terminal Window */
+    #terminalContainer {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 700px;
+        height: 400px;
+        background: black;
+        border: 2px solid white;
+        display: none;
+        flex-direction: column;
+        box-shadow: 0 0 20px rgba(255,255,255,0.4);
+        resize: both;
+        overflow: hidden;
+    }
+
+    #terminalHeader {
+        background: #111;
+        padding: 8px;
+        cursor: grab;
+        color: white;
+        font-weight: bold;
+    }
+
+    #terminalContent {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        font-size: 14px;
+        color: white;
+    }
+
+    #inputLine {
+        display: flex;
+        align-items: center;
+    }
+
+    .prompt {
+        color: white;
+        margin-right: 5px;
+    }
+
+    #commandInput {
+        background: transparent;
+        border: none;
+        color: white;
+        outline: none;
+        font-size: 14px;
+        flex: 1;
+    }
+
+    .cursor {
+        display: inline-block;
+        width: 10px;
+        background: white;
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        50%, 100% { opacity: 0; }
+    }
+
+    .fade-out {
+        animation: fadeOut 0.5s forwards;
+    }
+
+    @keyframes fadeOut {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+    }
 </style>
 </head>
-<body oncontextmenu="return false">
+<body>
 
-<!-- Landing -->
-<section class="screen landing" id="landing">
-  <img src="https://files.catbox.moe/k9z1u2.gif" alt="cat gif" />
-  <div class="brand">richcat.lol</div>
-  <button class="enter" id="enterBtn">ENTER</button>
-</section>
+<!-- Landing Screen -->
+<div id="landing">
+    <img src="https://files.catbox.moe/k9z1u2.gif" alt="Pusheen GIF">
+    <h2>welcome :3</h2>
+    <button id="enterBtn">ENTER</button>
+    <div class="footer-text">richcat.lol 2025</div>
+</div>
 
 <!-- Terminal -->
-<section class="screen terminal hidden" id="terminal">
-  <div class="term-wrap" id="output" aria-live="polite"></div>
-</section>
+<div id="terminalContainer">
+    <div id="terminalHeader">richcat@lol: ~</div>
+    <div id="terminalContent"></div>
+    <div id="inputLine"><span class="prompt">$</span><input type="text" id="commandInput" autofocus></div>
+</div>
+
+<audio id="byeSound" src="https://files.catbox.moe/08gjdx.mp3"></audio>
 
 <script>
-  const landing = document.getElementById('landing');
-  const termScreen = document.getElementById('terminal');
-  const output  = document.getElementById('output');
-  const enterBtn = document.getElementById('enterBtn');
+    const landing = document.getElementById('landing');
+    const enterBtn = document.getElementById('enterBtn');
+    const terminal = document.getElementById('terminalContainer');
+    const terminalContent = document.getElementById('terminalContent');
+    const commandInput = document.getElementById('commandInput');
+    const byeSound = document.getElementById('byeSound');
 
-  const scriptLines = [
-    "richcat@lol:~$ loading profiles...",
-    "",
-    "Available profiles:",
-    "> open src",
-    "> open rycebag",
-    "",
-    "Click a command above to open a profile page."
-  ];
+    const commands = ["help", "open src", "open rycebag", "clear", "exit"];
+    let dragging = false, offsetX = 0, offsetY = 0;
+    let isTyping = false; // Prevent spam typing
 
-  const route = { "src":"src.html", "rycebag":"rycebag.html" };
+    // Show terminal
+    enterBtn.addEventListener('click', () => {
+        landing.style.display = 'none';
+        terminal.style.display = 'flex';
+        terminalContent.innerHTML = "";
+        showProfiles();
+    });
 
-  const cursor = document.createElement('span');
-  cursor.className = 'cursor';
-
-  function typeAll(lines, i=0){
-    if(i >= lines.length){ newLine(""); parkCursor(); adjustCentering(); return; }
-    typeLine(lines[i], () => typeAll(lines, i+1));
-  }
-
-  function typeLine(text, done){
-    const line = document.createElement('div');
-    line.className = 'line';
-    const textSpan = document.createElement('span');
-    line.appendChild(textSpan);
-    output.appendChild(line);
-    parkCursor(line);
-
-    let idx = 0, speed = 14;
-    (function step(){
-      if(idx < text.length){
-        textSpan.textContent += text.charAt(idx++);
-        adjustCentering(); scrollToBottom();
-        setTimeout(step, speed);
-      } else {
-        const m = text.match(/^>\s*open\s+([a-z0-9\-]+)/i);
-        if(m){
-          const profile = m[1];
-          const a = document.createElement('a');
-          a.className = 'cmd';
-          a.href = route[profile] || '#';
-          a.textContent = `open ${profile}`;
-          line.textContent = "> ";
-          line.appendChild(a);
-        }
-        parkCursor(); newLine(""); adjustCentering(); done();
-      }
-    })();
-  }
-
-  function newLine(text=""){ const line=document.createElement('div'); line.className='line'; if(text) line.textContent=text; output.appendChild(line); return line; }
-  function parkCursor(line){ if(!line) line=newLine(); line.appendChild(cursor); scrollToBottom(); }
-  function scrollToBottom(){ output.scrollTop = output.scrollHeight; }
-
-  // Center terminal block when short; pin to top when tall
-  function adjustCentering(){
-    const tall = output.scrollHeight > (window.innerHeight - 48);
-    termScreen.classList.toggle('top', tall);
-  }
-  new ResizeObserver(adjustCentering).observe(output);
-  window.addEventListener('resize', adjustCentering);
-
-  enterBtn.addEventListener('click', () => {
-    landing.classList.add('hidden');
-    setTimeout(() => { termScreen.classList.remove('hidden'); typeAll(scriptLines); }, 600);
-  });
-
-  // Block common inspect shortcuts (best-effort)
-  document.addEventListener('keydown', (e) => {
-    const k = e.key.toLowerCase();
-    if (
-      e.key === 'F12' ||
-      (e.ctrlKey && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) ||
-      (e.ctrlKey && (k === 'u' || k === 's' || k === 'p'))
-    ) {
-      e.preventDefault(); e.stopPropagation();
-      return false;
+    function showProfiles() {
+        addResponse("open src\nopen rycebag\nType 'help' to see all commands.");
     }
-  }, true);
 
-  // also block dragging selections
-  document.addEventListener('dragstart', (e)=>e.preventDefault());
+    // Draggable terminal
+    const header = document.getElementById('terminalHeader');
+    header.addEventListener('mousedown', (e) => {
+        dragging = true;
+        offsetX = e.clientX - terminal.offsetLeft;
+        offsetY = e.clientY - terminal.offsetTop;
+        header.style.cursor = "grabbing";
+    });
+    document.addEventListener('mouseup', () => {
+        dragging = false;
+        header.style.cursor = "grab";
+    });
+    document.addEventListener('mousemove', (e) => {
+        if (dragging) {
+            terminal.style.left = (e.clientX - offsetX) + "px";
+            terminal.style.top = (e.clientY - offsetY) + "px";
+        }
+    });
+
+    // Typing effect for system responses (line by line)
+    function addResponse(text, callback) {
+        isTyping = true;
+        const lines = text.split("\n");
+        let i = 0;
+
+        function typeLine() {
+            if (i < lines.length) {
+                let line = lines[i];
+                let j = 0;
+
+                let typingInterval = setInterval(() => {
+                    terminalContent.innerHTML += line.charAt(j);
+                    j++;
+                    terminalContent.scrollTop = terminalContent.scrollHeight;
+                    if (j >= line.length) {
+                        clearInterval(typingInterval);
+                        terminalContent.innerHTML += "\n";
+                        i++;
+                        setTimeout(typeLine, 150);
+                    }
+                }, 20);
+            } else {
+                isTyping = false;
+                if (callback) callback();
+            }
+        }
+
+        typeLine();
+    }
+
+    // Command handler
+    commandInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !isTyping) {
+            const cmd = commandInput.value.trim();
+            commandInput.value = "";
+            terminalContent.innerHTML += `$ ${cmd}\n`;
+
+            if (cmd === "help") {
+                addResponse("Commands:\nhelp\nopen src\nopen rycebag\nclear\nexit");
+            } else if (cmd === "open src" || cmd === "source") {
+                addResponse("Opening SRC profile...", () => {
+                    setTimeout(() => window.location.href = "http://richcat.lol/1", 800);
+                });
+            } else if (cmd === "open rycebag" || cmd === "ryce") {
+                addResponse("Opening RYCEBAG profile...", () => {
+                    setTimeout(() => window.location.href = "http://richcat.lol/ryce", 800);
+                });
+            } else if (cmd === "clear") {
+                terminalContent.innerHTML = "";
+                showProfiles();
+            } else if (cmd === "exit") {
+                terminal.classList.add('fade-out');
+                byeSound.play();
+                setTimeout(() => {
+                    terminal.style.display = 'none';
+                    terminal.classList.remove('fade-out');
+                    landing.style.display = 'block';
+                }, 600);
+            } else {
+                addResponse("Command not found. Type 'help' for commands.");
+            }
+        }
+    });
 </script>
 </body>
 </html>
