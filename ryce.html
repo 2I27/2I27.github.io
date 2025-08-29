@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ryce_bag | Bio</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .spinning-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 1200px;
+            height: 1200px;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            opacity: 0.12;
+            pointer-events: none;
+            animation: spin 40s linear infinite;
+            filter: drop-shadow(0 0 60px #fff) drop-shadow(0 0 120px #fff8);
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        .corner-audio {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 10;
+            background: rgba(0,0,0,0.7);
+            border-radius: 8px;
+            box-shadow: 0 2px 12px #0008;
+        }
+        .profile {
+            color: #fff;
+            background: #000;
+            border-radius: 18px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 0 32px 4px #222, 0 0 24px 8px #000, 0 0 40px 8px #222 inset;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 350px;
+            max-width: 420px;
+            min-height: 520px;
+            max-height: 700px;
+            justify-content: center;
+            border: 2px solid #222;
+            position: relative;
+        }
+        .profile-img-wrapper {
+            width: 110px;
+            height: 110px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 4px solid #52525b;
+            box-shadow: 0 0 16px 2px #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center -409%;
+            transform: scale(1.35);
+            border-radius: 0;
+        }
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .username {
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .discord {
+            background: #5865f2;
+            color: #fff;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .discord svg {
+            width: 22px;
+            height: 22px;
+        }
+        .corner-audio-wrapper {
+            position: fixed;
+            left: 24px;
+            bottom: 24px;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-end;
+            min-width: 80px;
+            width: max-content;
+            pointer-events: none;
+        }
+        .corner-gif {
+            width: 160px;
+            height: 160px;
+            object-fit: contain;
+            border-radius: 24px;
+            box-shadow: 0 2px 12px #0008;
+            margin-bottom: 75px;
+            pointer-events: auto;
+        }
+        .corner-audio {
+            pointer-events: auto;
+        }
+        .social-links {
+            display: flex;
+            gap: 18px;
+            margin-top: 1.5rem;
+            justify-content: center;
+            width: 100%;
+        }
+        .social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: #18181b;
+            border-radius: 50%;
+            transition: box-shadow 0.2s, background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 12px #000a;
+            border: 2px solid #222;
+            text-decoration: none;
+        }
+        .social img {
+            width: 26px;
+            height: 26px;
+            filter: brightness(0) invert(1) drop-shadow(0 0 2px #fff8);
+        }
+        .social:hover {
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 4px 18px #fff4, 0 2px 12px #000a;
+        }
+        .social.telegram:hover { background: #229ED9; }
+        .social.github:hover { background: #333; }
+        .social.osu:hover { background: #ff66aa; }
+        .social.spotify:hover { background: #1db954; }
+        .audio-controls-wrapper {
+            position: fixed;
+            left: 24px;
+            bottom: 24px;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(24,24,27,0.95);
+            border-radius: 10px;
+            box-shadow: 0 2px 12px #000a;
+            padding: 8px 16px;
+            margin-top: 4px;
+            z-index: 31;
+            position: relative;
+        }
+        .audio-controls button {
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 4px #0006;
+        }
+        .audio-controls button:hover {
+            background: #444;
+        }
+        .audio-controls input[type="range"] {
+            width: 80px;
+            accent-color: #fff;
+            background: transparent;
+        }
+        .corner-audio {
+            display: none;
+        }
+        .audio-controls-wrapper {
+            position: fixed;
+            left: 24px;
+            bottom: 24px;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(24,24,27,0.95);
+            border-radius: 10px;
+            box-shadow: 0 2px 12px #000a;
+            padding: 8px 16px;
+            margin-top: 4px;
+            z-index: 31;
+            position: relative;
+        }
+        .audio-controls button {
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 4px #0006;
+        }
+        .audio-controls button:hover {
+            background: #444;
+        }
+        .audio-controls input[type="range"] {
+            width: 80px;
+            accent-color: #fff;
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <img class="spinning-bg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/BlackSun.svg/800px-BlackSun.svg.png" alt="Spinning Background">
+    <div class="corner-audio-wrapper">
+        <img class="corner-gif" src="https://media.tenor.com/Q4rXUh0j47MAAAAj/anime-dance.gif" alt="Dancing GIF">
+        <audio class="corner-audio" src="https://files.catbox.moe/e6wt0v.mp3" autoplay loop muted controls></audio>
+    </div>
+    <div class="profile" style="z-index:1;">
+        <div class="profile-img-wrapper">
+            <img src="https://i1.sndcdn.com/avatars-6Vr2JuUlwuCMudP8-t5pHAA-t240x240.jpg" alt="Profile Picture">
+        </div>
+        <div class="profile-info">
+            <div class="username">@ryce_bag</div>
+            <div class="social-links">
+                <a href="https://t.me/rycebag" class="social telegram" target="_blank" title="Telegram">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" alt="Telegram"/>
+                </a>
+                <a href="https://github.com/rycebag" class="social github" target="_blank" title="GitHub">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub"/>
+                </a>
+                <a href="https://osu.ppy.sh/users/36059840" class="social osu" target="_blank" title="osu!">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/osu.svg" alt="osu!"/>
+                </a>
+                <a href="https://open.spotify.com/user/olqqo0san52qeb8denz2tel02" class="social spotify" target="_blank" title="Spotify">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/spotify.svg" alt="Spotify"/>
+                </a>
+        </div>
+    </div>
+    <div class="audio-controls-wrapper">
+        <audio id="custom-audio" class="corner-audio" src="https://files.catbox.moe/e6wt0v.mp3" autoplay loop></audio>
+        <div class="audio-controls">
+            <button id="play-pause" aria-label="Play/Pause">
+                <span id="play-icon" style="display:inline;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </span>
+                <span id="pause-icon" style="display:none;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                </span>
+            </button>
+            <button id="mute-unmute" aria-label="Mute/Unmute">
+                <span id="mute-icon" style="display:inline;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19 5v14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/></svg>
+                </span>
+                <span id="unmute-icon" style="display:none;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                </span>
+            </button>
+            <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Volume" />
+        </div>
+    </div>
+        
+</body>
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const audio = document.getElementById('custom-audio');
+    const playPause = document.getElementById('play-pause');
+    const muteUnmute = document.getElementById('mute-unmute');
+    const volumeSlider = document.getElementById('volume-slider');
+    const playIcon = document.getElementById('play-icon');
+    const pauseIcon = document.getElementById('pause-icon');
+    const muteIcon = document.getElementById('mute-icon');
+    const unmuteIcon = document.getElementById('unmute-icon');
+
+    audio.volume = volumeSlider.value;
+
+    playPause.addEventListener('click', function() {
+        if (audio.paused) {
+            audio.play();
+        } else {
+            audio.pause();
+        }
+    });
+    audio.addEventListener('play', function() {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = '';
+    });
+    audio.addEventListener('pause', function() {
+        playIcon.style.display = '';
+        pauseIcon.style.display = 'none';
+    });
+
+    muteUnmute.addEventListener('click', function() {
+        audio.muted = !audio.muted;
+    });
+    audio.addEventListener('volumechange', function() {
+        if (audio.muted || audio.volume === 0) {
+            muteIcon.style.display = 'none';
+            unmuteIcon.style.display = '';
+        } else {
+            muteIcon.style.display = '';
+            unmuteIcon.style.display = 'none';
+        }
+    });
+
+    volumeSlider.addEventListener('input', function() {
+        audio.volume = this.value;
+        audio.muted = (this.value == 0);
+    });
+});
+</script>
+</html>
