@@ -1,27 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>richcat.lol</title>
-</head>
-<body bgcolor="#000000" text="#FFFFFF" link="#FF0057" vlink="#FF0057" alink="#FF0057">
-    <center>
-        <!-- Rain effect using Marquee -->
-        <marquee behavior="scroll" direction="down" scrollamount="2" style="position:fixed; width:100%; height:100%; color:#444;">
-            | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
-        </marquee>
+<style>
+  :root { --bg:#000; --fg:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body {
+    height:100%;
+    background:var(--bg);
+    color:var(--fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    overflow:hidden;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none; /* no highlight */
+  }
 
-        <h1 style="font-size:48px; margin-top:50px;">richcat.lol</h1>
-        <p style="font-size:20px;">Welcome to my bio site.</p>
-        <img src="https://i.ibb.co/m0X6YbJ/cat.png" alt="Cat Logo" width="120" height="120">
-        
-        <h3 style="margin-top:30px;">My Links</h3>
-        <ul style="list-style:none; padding:0;">
-            <li><a href="https://twitter.com" target="_blank">Twitter</a></li>
-            <li><a href="https://instagram.com" target="_blank">Instagram</a></li>
-            <li><a href="https://youtube.com" target="_blank">YouTube</a></li>
-        </ul>
-    </center>
+  .screen {
+    position:fixed; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  .hidden { opacity:0; visibility:hidden; pointer-events:none; }
+
+  /* Landing */
+  .landing img {
+    max-width:360px; width:60vw; margin-bottom:1.5rem; filter:grayscale(100%);
+  }
+  .brand { font-size:clamp(20px, 3vw, 28px); margin-bottom:1.4rem; letter-spacing:.02em; }
+  .enter {
+    background:transparent; color:var(--fg);
+    border:2px solid var(--fg); padding:.8rem 2rem; font-size:1.05rem; cursor:pointer;
+    transition:background .25s ease, color .25s ease; letter-spacing:.08em;
+  }
+  .enter:hover { background:var(--fg); color:var(--bg); }
+
+  /* Terminal */
+  .terminal { padding:24px; display:flex; align-items:center; justify-content:center; }
+  .terminal.top { align-items:flex-start; } /* auto-switch when content is tall */
+  .term-wrap {
+    width:min(900px, 100%); margin:0 auto; max-height:calc(100vh - 48px);
+    overflow:auto; line-height:1.6; font-size:16px; white-space:pre-wrap; text-align:left;
+  }
+  .line { margin-bottom:4px; }
+  .cursor { display:inline-block; width:9px; height:1em; transform:translateY(3px); background:var(--fg); animation:blink 1s steps(1,end) infinite; margin-left:2px; }
+  @keyframes blink { 0%,50% {opacity:1} 51%,100% {opacity:0} }
+
+  a.cmd { color:var(--fg); text-decoration:none; border-bottom:1px dotted transparent; transition:background .2s ease, color .2s ease, border-color .2s ease; }
+  a.cmd:hover { background:var(--fg); color:var(--bg); border-color:var(--bg); padding:0 3px; }
+
+  @media (max-width:600px){
+    .terminal{ padding:16px; }
+    .term-wrap{ font-size:15px; }
+  }
+</style>
+</head>
+<body oncontextmenu="return false">
+
+<!-- Landing -->
+<section class="screen landing" id="landing">
+  <img src="https://files.catbox.moe/k9z1u2.gif" alt="cat gif" />
+  <div class="brand">richcat.lol</div>
+  <button class="enter" id="enterBtn">ENTER</button>
+</section>
+
+<!-- Terminal -->
+<section class="screen terminal hidden" id="terminal">
+  <div class="term-wrap" id="output" aria-live="polite"></div>
+</section>
+
+<script>
+  const landing = document.getElementById('landing');
+  const termScreen = document.getElementById('terminal');
+  const output  = document.getElementById('output');
+  const enterBtn = document.getElementById('enterBtn');
+
+  const scriptLines = [
+    "richcat@lol:~$ loading profiles...",
+    "",
+    "Available profiles:",
+    "> open src",
+    "> open rycebag",
+    "",
+    "Click a command above to open a profile page."
+  ];
+
+  const route = { "src":"src.html", "rycebag":"rycebag.html" };
+
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+
+  function typeAll(lines, i=0){
+    if(i >= lines.length){ newLine(""); parkCursor(); adjustCentering(); return; }
+    typeLine(lines[i], () => typeAll(lines, i+1));
+  }
+
+  function typeLine(text, done){
+    const line = document.createElement('div');
+    line.className = 'line';
+    const textSpan = document.createElement('span');
+    line.appendChild(textSpan);
+    output.appendChild(line);
+    parkCursor(line);
+
+    let idx = 0, speed = 14;
+    (function step(){
+      if(idx < text.length){
+        textSpan.textContent += text.charAt(idx++);
+        adjustCentering(); scrollToBottom();
+        setTimeout(step, speed);
+      } else {
+        const m = text.match(/^>\s*open\s+([a-z0-9\-]+)/i);
+        if(m){
+          const profile = m[1];
+          const a = document.createElement('a');
+          a.className = 'cmd';
+          a.href = route[profile] || '#';
+          a.textContent = `open ${profile}`;
+          line.textContent = "> ";
+          line.appendChild(a);
+        }
+        parkCursor(); newLine(""); adjustCentering(); done();
+      }
+    })();
+  }
+
+  function newLine(text=""){ const line=document.createElement('div'); line.className='line'; if(text) line.textContent=text; output.appendChild(line); return line; }
+  function parkCursor(line){ if(!line) line=newLine(); line.appendChild(cursor); scrollToBottom(); }
+  function scrollToBottom(){ output.scrollTop = output.scrollHeight; }
+
+  // Center terminal block when short; pin to top when tall
+  function adjustCentering(){
+    const tall = output.scrollHeight > (window.innerHeight - 48);
+    termScreen.classList.toggle('top', tall);
+  }
+  new ResizeObserver(adjustCentering).observe(output);
+  window.addEventListener('resize', adjustCentering);
+
+  enterBtn.addEventListener('click', () => {
+    landing.classList.add('hidden');
+    setTimeout(() => { termScreen.classList.remove('hidden'); typeAll(scriptLines); }, 600);
+  });
+
+  // Block common inspect shortcuts (best-effort)
+  document.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) ||
+      (e.ctrlKey && (k === 'u' || k === 's' || k === 'p'))
+    ) {
+      e.preventDefault(); e.stopPropagation();
+      return false;
+    }
+  }, true);
+
+  // also block dragging selections
+  document.addEventListener('dragstart', (e)=>e.preventDefault());
+</script>
 </body>
 </html>
