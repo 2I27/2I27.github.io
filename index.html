@@ -1,293 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>richcat.lol</title>
 <style>
- 
-  :root { --bg:#000; --fg:#fff; --muted:#c9c9c9; --border:#2a2a2a; }
-  * { box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-  html,body{height:100%}
+  :root { color-scheme: dark; }
   body{
-    margin:0; background:var(--bg); color:var(--fg);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    overflow:hidden; user-select:none; /* no highlight */
-    letter-spacing:.1px;
+    margin:0;background:#000;color:#fff;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace;
+    overflow:hidden;user-select:none;
+  }
+
+ 
+  #enter-screen{
+    position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;z-index:10;
+  }
+  #enter-screen img{
+    width:200px;height:auto;filter:grayscale(100%);animation:float 3s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+  
+  #enter-btn{
+    margin-top:30px;font-size:22px;padding:14px 50px;border:2px solid #fff;color:#fff;background:transparent;cursor:pointer;
+    letter-spacing:2px;position:relative;overflow:hidden;transition:transform .2s ease;
+  }
+  #enter-btn::before,#enter-btn::after{
+    content:"";position:absolute;inset:0;background:#fff;transform:translateX(-100%);mix-blend-mode:difference;
+  }
+  #enter-btn::after{transition:transform .35s ease .08s}
+  #enter-btn::before{transition:transform .35s ease}
+  #enter-btn:hover::before,#enter-btn:hover::after{transform:translateX(0)}
+  #enter-btn:hover{transform:scale(1.04)}
+  #footer{
+    position:absolute;bottom:20px;font-size:14px;opacity:.95;
+    animation:glow 2s ease-in-out infinite alternate;
+  }
+  @keyframes glow{
+    from{ text-shadow:0 0 5px #fff, 0 0 10px #9e9e9e, 0 0 15px #fff }
+    to  { text-shadow:0 0 14px #fff,0 0 26px #9e9e9e,0 0 34px #fff }
   }
 
   
-  .enter{
-    position:fixed; inset:0; display:grid; place-items:center; overflow:hidden;
+  #terminal{
+    display:none;opacity:0;transition:opacity .6s ease;
+    position:fixed;top:56px;left:50%;transform:translateX(-50%);
+    width:min(800px,80vw);height:min(540px,75vh);
+    background:#000;border:2px solid #fff;box-shadow:0 0 25px rgba(255,255,255,.28);
+    display:flex;flex-direction:column;z-index:0;
   }
-  .enter-inner{
-    position:relative; text-align:center; z-index:2; padding:24px 18px;
-    animation:fadeIn .6s ease both;
+  #title-bar{
+    background:#111;color:#fff;padding:6px 10px;cursor:move;font-weight:700;display:flex;gap:8px;align-items:center;
   }
- 
-  .enter::before, .enter::after{
-    content:""; position:absolute; inset:-50%;
-    background:
-      repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px);
-    animation:moveA 18s linear infinite; opacity:.12;
+  #title-bar .dot{width:10px;height:10px;border:1px solid #fff;border-radius:50%}
+  #screen{
+    flex:1;padding:12px 12px 8px 12px;font-size:16px;line-height:1.35;overflow-y:auto;white-space:pre-wrap;
   }
-  .enter::after{
-    transform:rotate(90deg);
-    animation:moveB 26s linear infinite reverse;
+  #bottom{
+    padding:6px 10px;border-top:1px solid #222;
   }
-  @keyframes moveA { to { transform: translateY(-50%); } }
-  @keyframes moveB { to { transform: rotate(90deg) translateY(-50%); } }
-
-  .pusheen{
-    width:min(220px,60vw); filter:grayscale(100%) contrast(110%); display:block; margin:0 auto 14px;
-  }
-
-  .glitch{
-    font-size:clamp(22px,4vw,36px); font-weight:700; position:relative; display:inline-block;
-    padding:2px 6px;
-  }
-  .glitch::before,.glitch::after{
-    content:attr(data-text); position:absolute; inset:0; color:#fff; mix-blend-mode:screen;
-    clip-path:inset(0 0 0 0);
-  }
-  .glitch::before{ transform:translate(1px,-1px); opacity:.55; }
-  .glitch::after{ transform:translate(-1px,1px); opacity:.35; }
-  .glow{ animation:glow 2.2s ease-in-out infinite; }
-  @keyframes glow{ 0%,100%{text-shadow:0 0 0 #fff} 50%{text-shadow:0 0 14px #fff;} }
-
-  .enter-btn{
-    margin-top:16px; background:transparent; color:var(--fg);
-    border:1.5px solid var(--fg); padding:10px 26px; letter-spacing:.18em;
-    cursor:pointer; transition:.2s ease; font-weight:700;
-  }
-  .enter-btn:hover{ background:var(--fg); color:var(--bg); box-shadow:0 0 18px #fff; }
-  .sub{ margin-top:8px; font-size:12px; color:var(--muted); }
-  .foot{ position:fixed; bottom:14px; left:0; right:0; text-align:center; font-size:12px;
-         opacity:.85; animation:pulse 2.6s ease-in-out infinite; }
-  @keyframes pulse{50%{opacity:.55}}
-
-  .hide{opacity:0; pointer-events:none; transition:opacity .35s ease}
-
- 
-  .term{
-    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:min(900px,92vw); height:min(540px,80vh);
-    background:#000; border:1px solid var(--border); border-radius:10px;
-    box-shadow:0 12px 48px rgba(255,255,255,.10), inset 0 0 0 1px rgba(255,255,255,.03);
-    display:none; flex-direction:column; opacity:0; transition:opacity .28s ease;
-  }
-  .term.show{display:flex; opacity:1}
-  .bar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:8px 10px; border-bottom:1px solid var(--border);
-    background:#0c0c0c; border-radius:10px 10px 0 0; cursor:grab; user-select:none;
-  }
-  .dots{display:flex; gap:6px}
-  .dot{width:10px; height:10px; border:1px solid #7d7d7d; border-radius:50%}
-  .title{font-size:12px; color:#e9e9e9; letter-spacing:.04em}
-  .screen{
-    flex:1; padding:14px; overflow:auto; scrollbar-width:none; -ms-overflow-style:none;
-    white-space:pre-wrap; line-height:1.42; font-size:14px;
-  }
-  .screen::-webkit-scrollbar{display:none}
-  .row{
-    display:flex; gap:8px; align-items:center; padding:10px 12px; border-top:1px solid var(--border);
-    background:rgba(255,255,255,.02); border-radius:0 0 10px 10px;
-  }
-  .prompt{color:#fff}
-  .dollar{color:#fff; font-weight:800}
-  .inp{
-    flex:1; background:transparent; border:0; outline:0; color:var(--fg); font:inherit;
-  }
-  .blink{ display:inline-block; width:8px; height:16px; background:#fff; margin-left:2px;
-          animation:blink 1s steps(1,end) infinite; }
-  @keyframes blink{50%{opacity:0}}
-
-  .fade-out{ opacity:0 !important; transition:opacity .35s ease; }
-
-  /* tiny shake when yanked */
-  .shake{animation:shake .25s}
-  @keyframes shake{
-    20%{transform:translate(calc(-50% - 1px),calc(-50%))}
-    40%{transform:translate(calc(-50% + 1px),calc(-50%))}
-    60%{transform:translate(calc(-50% - 1px),calc(-50%))}
-    80%{transform:translate(calc(-50% + 1px),calc(-50%))}
+  #prompt{color:#fff}
+  #input-line{display:inline-block;min-width:1px}
+  .cursor{display:inline-block;width:10px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+  .rainbow{
+    background:linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
+    -webkit-background-clip:text;color:transparent;display:inline-block;font-weight:700;
   }
 
-  @keyframes fadeIn{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+  
+  *::selection{background:transparent}
+
+  @media (max-width:520px){
+    #enter-screen img{width:160px}
+    #enter-btn{font-size:18px;padding:12px 38px}
+    #terminal{width:92vw;height:72vh}
+    #screen{font-size:15px}
+  }
 </style>
 </head>
 <body>
 
 
-<section class="enter" id="enter">
-  <div class="enter-inner">
-    <img class="pusheen" src="https://files.catbox.moe/k9z1u2.gif" alt="cat" />
-    <div class="glitch glow" data-text="Welcome to richcat.lol">Welcome to richcat.lol</div>
-    <div class="sub"></div>
-    <button id="enterBtn" class="enter-btn">ENTER</button>
+<audio id="bg-music" src="https://files.catbox.moe/vkjinc.mp3" preload="auto" loop></audio>
+<audio id="bye-sound" src="https://files.catbox.moe/08gjdx.mp3" preload="auto"></audio>
+
+
+<div id="enter-screen">
+  <img src="https://files.catbox.moe/k9z1u2.gif" alt="Pusheen"/>
+  <button id="enter-btn">ENTER</button>
+  <div id="footer">richcat.lol 2025</div>
+</div>
+
+
+<div id="terminal" aria-label="terminal window">
+  <div id="title-bar">
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span style="margin-left:6px;">richcat@lol:~</span>
   </div>
-  <div class="foot">richcat.lol © 2025</div>
-</section>
-
-
-<section class="term" id="term">
-  <div class="bar" id="dragBar">
-    <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
-    <div class="title">richcat@lol — bash</div>
+  <div id="screen"></div>
+  <div id="bottom">
+    <span id="prompt">richcat@lol:~$ </span><span id="input-line"></span><span class="cursor">_</span>
   </div>
-  <div class="screen" id="screen"></div>
-  <div class="row">
-    <span class="prompt">richcat@lol:~<span class="dollar">$</span></span>
-    <input id="cmd" class="inp" spellcheck="false" autocomplete="off" />
-    <span class="blink"></span>
-  </div>
-</section>
-
-
-<audio id="bgm" src="https://files.catbox.moe/vkjinc.mp3" autoplay muted loop playsinline></audio>
-<audio id="bye" src="https://files.catbox.moe/08gjdx.mp3"></audio>
+</div>
 
 <script>
+  const enterBtn   = document.getElementById('enter-btn');
+  const enterScreen= document.getElementById('enter-screen');
+  const terminal   = document.getElementById('terminal');
+  const screen     = document.getElementById('screen');
+  const inputLine  = document.getElementById('input-line');
+  const bgMusic    = document.getElementById('bg-music');
+  const byeSound   = document.getElementById('bye-sound');
 
-const enter = document.getElementById('enter');
-const enterBtn = document.getElementById('enterBtn');
-const term = document.getElementById('term');
-const screen = document.getElementById('screen');
-const cmd = document.getElementById('cmd');
-const dragBar = document.getElementById('dragBar');
-const bgm = document.getElementById('bgm');
-const bye = document.getElementById('bye');
-
-
-const resumeAudio = () => { try { bgm.muted = false; bgm.play(); } catch(e){} };
-bgm.play().catch(()=>{});
-setTimeout(resumeAudio, 1200);
-['pointerdown','keydown','touchstart','mousemove'].forEach(ev => {
-  window.addEventListener(ev, resumeAudio, { once:true, passive:true });
-});
-
-
-window.addEventListener('contextmenu', e => e.preventDefault());
-window.addEventListener('keydown', e => {
-  const k = e.key.toLowerCase();
-  if (k === 'f12' || (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(k)) ||
-      (e.ctrlKey && ['u','s','p'].includes(k))) { e.preventDefault(); }
-});
-
-
-let isTyping = false;
-const esc = s => s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-function typeLines(lines, speed=14, gap=120, done){
-  isTyping = true;
-  let i=0;
-  const next = () => {
-    if(i>=lines.length){ isTyping=false; done&&done(); return; }
-    const text = lines[i]; let j=0;
-    const el = document.createElement('div'); screen.appendChild(el);
-    const t = setInterval(()=>{
-      el.innerHTML += esc(text.charAt(j)); j++;
+  
+  function typeText(line, speed=8, done){
+    const el = document.createElement('div');
+    const s  = String(line ?? ""); 
+    screen.appendChild(el);
+    let i=0;
+    const id=setInterval(()=>{
+      el.textContent += s.charAt(i);
+      i++;
       screen.scrollTop = screen.scrollHeight;
-      if(j>=text.length){ clearInterval(t); i++; setTimeout(next, gap); }
+      if(i>=s.length){ clearInterval(id); done && done(); }
     }, speed);
-  };
-  next();
-}
-
-
-function boot(){
-  screen.innerHTML = '';
-  typeLines([
-    "open src",
-    "open ryce_bag",
-    "Type 'help' for options."
-  ], 12, 110);
-}
-
-
-enterBtn.addEventListener('click', ()=>{
-  enter.classList.add('hide');
-  setTimeout(()=>{
-    term.classList.add('show');
-    boot();
-    cmd.focus();
-  }, 250);
-});
-
-
-function handle(input){
-  const txt = input.trim();
-  if(!txt) return;
-  const low = txt.toLowerCase();
-
-  if(low === 'help'){
-    typeLines([
-      "Available commands:",
-      "  open src        -> profile 1",
-      "  open ryce_bag   -> ryce profile",
-      "  clear           -> reset view",
-      "  exit            -> back to enter"
-    ]);
-  } else if(low === 'clear'){
-    screen.innerHTML = '';
-    boot();
-  } else if(low === 'exit'){
-    
-    try{ bye.currentTime = 0; bye.play(); }catch(e){}
-    term.classList.add('fade-out');
-    setTimeout(()=>{
-      term.classList.remove('show','fade-out');
-      term.style.display='none'; 
-    
-      enter.classList.remove('hide');
-      
-      screen.innerHTML = '';
-      
-      setTimeout(()=>{ term.style.display=''; }, 10);
-    }, 320);
-  } else if(low === 'open src' || low === 'source'){
-    typeLines(["Opening src..."], 12, 100, ()=> setTimeout(()=>location.href="http://richcat.lol/1",200));
-  } else if(low === 'open ryce_bag' || low === 'open ryce' || low === 'open rycebag' || low === 'ryce'){
-    typeLines(["Opening ryce_bag..."], 12, 100, ()=> setTimeout(()=>location.href="http://richcat.lol/ryce_bag",200));
-  } else {
-    typeLines([`Command not found: ${txt}`, "Type 'help' for options."]);
   }
-}
-
-
-cmd.addEventListener('keydown', e=>{
-  if(e.key === 'Enter'){
-    if(isTyping){ e.preventDefault(); return; }
-    const val = cmd.value;
-    cmd.value = '';
-    screen.innerHTML += `richcat@lol:~$ ${esc(val)}\n`;
-    handle(val);
+  function typeLines(lines, speed=8, gap=40, done){
+    let idx=0;
+    const next=()=> {
+      if(idx>=lines.length){ done && done(); return; }
+      typeText(lines[idx], speed, ()=>{ idx++; setTimeout(next, gap); });
+    };
+    next();
   }
-});
 
+  
+  const ascii = [
+"      _      _               _     _       _ ",
+" _ __(_) ___| |__   ___ __ _| |_  | | ___ | |",
+"| '__| |/ __| '_ \\ / __/ _` | __| | |/ _ \\| |",
+"| |  | | (__| | | | (_| (_| | |_ _| | (_) | |",
+"|_|  |_|\\___|_| |_|\\___\\__,_|\\__(_)_|\\___/|_|"
+  ];
+  function boot(){
+    screen.innerHTML="";
+    const wrap=document.createElement('div');
+    wrap.className='rainbow';
+    screen.appendChild(wrap);
 
-let dragging=false, sx=0, sy=0, startL=0, startT=0;
-const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
-dragBar.addEventListener('mousedown', e=>{
-  dragging=true; sx=e.clientX; sy=e.clientY;
-  const r = term.getBoundingClientRect(); startL=r.left; startT=r.top;
-  document.body.style.cursor='grabbing';
-});
-window.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.cursor=''; });
-window.addEventListener('mousemove', e=>{
-  if(!dragging) return;
-  const dx=e.clientX-sx, dy=e.clientY-sy;
-  const vw=innerWidth, vh=innerHeight, w=term.offsetWidth, h=term.offsetHeight;
-  const left = clamp(startL+dx, 8, vw-w-8);
-  const top  = clamp(startT+dy, 8, vh-h-8);
-  term.style.left = (left + w/2) + 'px';
-  term.style.top  = (top  + h/2) + 'px';
-  term.style.transform = 'translate(-50%,-50%)';
-  if(Math.abs(dx)+Math.abs(dy) > 140){ term.classList.add('shake'); setTimeout(()=>term.classList.remove('shake'),260); }
-});
+    let i=0;
+    const typeAsciiLine=()=>{
+      if(i>=ascii.length){
+        typeLines(["", "open src", "open ryce_bag", "Type 'help' for options."], 10, 30);
+        return;
+      }
+      const lineEl=document.createElement('div');
+      wrap.appendChild(lineEl);
+      let j=0;
+      const id=setInterval(()=>{
+      
+        lineEl.textContent += ascii[i].charAt(j);
+        j++;
+        screen.scrollTop=screen.scrollHeight;
+        if(j>=ascii[i].length){ clearInterval(id); i++; setTimeout(typeAsciiLine, 30); }
+      }, 7);
+    };
+    typeAsciiLine();
+  }
 
+  
+  enterBtn.addEventListener('click', ()=>{
+    
+    try { bgMusic.currentTime = 0; bgMusic.play(); } catch(e){}
+    enterScreen.style.display='none';
+    terminal.style.display='flex';
+    requestAnimationFrame(()=> terminal.style.opacity='1');
+    boot();
+  });
 
-term.addEventListener('mousedown', ()=> setTimeout(()=>cmd.focus(), 0));
+  
+  let typingLock=false; 
+  const history=[]; let hIndex=0;
+
+  document.addEventListener('keydown',(e)=>{
+    if(terminal.style.display!=='flex') return; 
+    if(typingLock) return;
+
+    if(e.key === 'Backspace'){
+      e.preventDefault();
+      inputLine.textContent = inputLine.textContent.slice(0,-1);
+    } else if(e.key === 'Enter'){
+      e.preventDefault();
+      const cmd = inputLine.textContent.trim();
+      if(!cmd) { inputLine.textContent=""; return; }
+      history.push(cmd); hIndex = history.length;
+      inputLine.textContent = "";
+      runCommand(cmd);
+    } else if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(hIndex>0){ hIndex--; inputLine.textContent = history[hIndex] ?? ""; }
+    } else if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      if(hIndex < history.length){ hIndex++; inputLine.textContent = history[hIndex] ?? ""; }
+    } else if(e.key.length === 1){
+      
+      inputLine.textContent += e.key;
+    }
+  });
+
+  function sysLine(text, speed=6){
+    return new Promise(res=>{
+      typingLock=true;
+      typeText(String(text ?? ""), speed, ()=>{ typingLock=false; res(); });
+    });
+  }
+
+  async function runCommand(raw){
+    const cmd = (raw || "").trim().toLowerCase();
+
+    
+    if(['help','?'].includes(cmd)){
+      await sysLine("Commands: open src | open 1 | open ryce_bag | open ryce | clear | exit");
+      return;
+    }
+
+    if(cmd==='clear'){
+      screen.innerHTML="";
+      boot();
+      return;
+    }
+
+    if(cmd==='exit'){
+      await sysLine("Goodbye...");
+      try{ byeSound.currentTime=0; byeSound.play(); }catch(e){}
+      terminal.style.opacity='0';
+      setTimeout(()=>{
+        terminal.style.display='none';
+        enterScreen.style.display='flex';
+      }, 600);
+      return;
+    }
+
+    if(cmd==='open src' || cmd==='open 1' || cmd==='src' || cmd==='1'){
+      await sysLine("Opening src profile...");
+      window.location.href='http://richcat.lol/1';
+      return;
+    }
+
+    if(cmd==='open ryce_bag' || cmd==='open ryce' || cmd==='ryce' || cmd==='2'){
+      await sysLine("Opening ryce_bag profile...");
+      window.location.href='http://richcat.lol/ryce';
+      return;
+    }
+
+  
+    await sysLine("Command not found. Type 'help'.");
+  }
+
+  
+  const titleBar = document.getElementById('title-bar');
+  let drag=false, dx=0, dy=0;
+  titleBar.addEventListener('mousedown',(e)=>{
+    drag=true;
+    dx = e.clientX - terminal.offsetLeft;
+    dy = e.clientY - terminal.offsetTop;
+  });
+  document.addEventListener('mousemove',(e)=>{
+    if(!drag) return;
+    terminal.style.left = (e.clientX - dx) + 'px';
+    terminal.style.top  = (e.clientY - dy) + 'px';
+  });
+  document.addEventListener('mouseup',()=> drag=false);
+
+ 
+  document.addEventListener('contextmenu',e=>e.preventDefault());
+  document.addEventListener('keydown',e=>{
+    if(e.key==='F12' || (e.ctrlKey && e.shiftKey && (e.key==='I' || e.key==='J'))){
+      e.preventDefault();
+    }
+  });
 </script>
 </body>
 </html>
